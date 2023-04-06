@@ -39,41 +39,41 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
 Now let's change it a bit:
 
 ```js
-  const wasteCPUCyclesInSeconds = (seconds) => {
-    const startTime = Date.now();
-
-    while (true) {
-      const endTime  = Date.now();
-      const duration = Math.floor((endTime - startTime) / 1000);
-
-      if (duration >= seconds) {
-        break;
-      }
-    }
-  }
-
+const wasteCPUCyclesInSeconds = (seconds) => {
   const startTime = Date.now();
-  let   stop      = false;
 
-  setTimeout(() => {
+  while (true) {
     const endTime  = Date.now();
     const duration = Math.floor((endTime - startTime) / 1000);
 
-    stop = true;
-
-    console.log(`This message is set to be displayed after 1 second but it displayed after ${duration} seconds!`);
-    console.log(`  stop: ${stop}`);
-  }, 1000);
-
-  console.log('Wasting CPU cycles for 2 seconds...');
-  wasteCPUCyclesInSeconds(2);
-
-  if (!stop) {
-    console.log('Wasting CPU cycles for 1 second...');
-    wasteCPUCyclesInSeconds(1);
+    if (duration >= seconds) {
+      break;
+    }
   }
+}
 
+const startTime = Date.now();
+let   stop      = false;
+
+setTimeout(() => {
+  const endTime  = Date.now();
+  const duration = Math.floor((endTime - startTime) / 1000);
+
+  stop = true;
+
+  console.log(`This message is set to be displayed after 1 second but it displayed after ${duration} seconds!`);
   console.log(`  stop: ${stop}`);
+}, 1000);
+
+console.log('Wasting CPU cycles for 2 seconds...');
+wasteCPUCyclesInSeconds(2);
+
+if (!stop) {
+  console.log('Wasting CPU cycles for 1 second...');
+  wasteCPUCyclesInSeconds(1);
+}
+
+console.log(`  stop: ${stop}`);
 ```
 ```
 Wasting CPU cycles for 2 seconds...
@@ -88,8 +88,11 @@ You see. You wanted to prevent wasting CPU cycles for another 1 second but the o
 Now let's switch to `async` without `await`:
 
 ```js
+(async () => {
   const wasteCPUCyclesInSeconds = async (seconds) => {
     ...
+    
+    console.log(` Finished after ${seconds} seconds.`);
   }
 
   .
@@ -105,14 +108,66 @@ Now let's switch to `async` without `await`:
   }
 
   console.log(`  stop: ${stop}`);
+})();
 ```
 ```
 Wasting CPU cycles for 2 seconds...
+ Finished after 2 seconds.
 Wasting CPU cycles for 1 second...
+ Finished after 1 seconds.
   stop: false
 This message is set to be displayed after 1 second but it displayed after 3 seconds!
   stop: true
 ```
+
+Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously. The only JavaScript thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
+
+Now let's use `Promise`:
+
+```js
+const wasteCPUCyclesInSeconds = (seconds) => {
+  return new Promise(resolve => {
+    const startTime = Date.now();
+
+    while (true) {
+      const endTime  = Date.now();
+      const duration = Math.floor((endTime - startTime) / 1000);
+
+      if (duration >= seconds) {
+        break;
+      }
+    }
+
+    console.log(` Finished after ${seconds} seconds.`);
+
+    resolve();
+  });
+}
+
+.
+.
+.
+
+console.log('Wasting CPU cycles for 2 seconds...');
+wasteCPUCyclesInSeconds(2);
+
+if (!stop) {
+  console.log('Wasting CPU cycles for 1 second...');
+  wasteCPUCyclesInSeconds(1);
+}
+
+console.log(`  stop: ${stop}`);
+```
+```
+Wasting CPU cycles for 2 seconds...
+ Finished after 2 seconds.
+Wasting CPU cycles for 1 second...
+ Finished after 1 seconds.
+  stop: false
+This message is set to be displayed after 1 second but it displayed after 3 seconds!
+  stop: true
+```
+
 
 
 
