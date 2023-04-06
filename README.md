@@ -36,6 +36,83 @@ while (true) {
 This message is set to be displayed after 1 second but it displayed after 3 seconds!
 ```
 
+Now let's change it a bit:
+
+```js
+  const wasteCPUCyclesInSeconds = (seconds) => {
+    const startTime = Date.now();
+
+    while (true) {
+      const endTime  = Date.now();
+      const duration = Math.floor((endTime - startTime) / 1000);
+
+      if (duration >= seconds) {
+        break;
+      }
+    }
+  }
+
+  const startTime = Date.now();
+  let   stop      = false;
+
+  setTimeout(() => {
+    const endTime  = Date.now();
+    const duration = Math.floor((endTime - startTime) / 1000);
+
+    stop = true;
+
+    console.log(`This message is set to be displayed after 1 second but it displayed after ${duration} seconds!`);
+    console.log(`  stop: ${stop}`);
+  }, 1000);
+
+  console.log('Wasting CPU cycles for 2 seconds...');
+  wasteCPUCyclesInSeconds(2);
+
+  if (!stop) {
+    console.log('Wasting CPU cycles for 1 second...');
+    wasteCPUCyclesInSeconds(1);
+  }
+
+  console.log(`  stop: ${stop}`);
+```
+```
+Wasting CPU cycles for 2 seconds...
+Wasting CPU cycles for 1 second...
+  stop: false
+This message is set to be displayed after 1 second but it displayed after 3 seconds!
+  stop: true
+```
+
+You see. You wanted to prevent wasting CPU cycles for another 1 second but the only thread running by JavaScript was busy.
+
+Now let's switch to `async` without `await`:
+
+```js
+  const wasteCPUCyclesInSeconds = async (seconds) => {
+    ...
+  }
+
+  .
+  .
+  .
+
+  console.log('Wasting CPU cycles for 2 seconds...');
+  wasteCPUCyclesInSeconds(2);
+
+  if (!stop) {
+    console.log('Wasting CPU cycles for 1 second...');
+    wasteCPUCyclesInSeconds(1);
+  }
+
+  console.log(`  stop: ${stop}`);
+```
+```
+Wasting CPU cycles for 2 seconds...
+Wasting CPU cycles for 1 second...
+  stop: false
+This message is set to be displayed after 1 second but it displayed after 3 seconds!
+  stop: true
+```
 
 
 
