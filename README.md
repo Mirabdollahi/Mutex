@@ -120,7 +120,7 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
   stop: true
 ```
 
-Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously. The only JavaScript thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
+Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously. It's because the only available thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
 
 Now let's use `Promise`:
 
@@ -168,7 +168,7 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
   stop: true
 ```
 
-
+Nothing changed. JavaScript with its only thread is unable to escape a blocking code.
 
 
 Uploading soon...
