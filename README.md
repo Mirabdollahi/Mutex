@@ -120,7 +120,7 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
   stop: true
 ```
 
-Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously! It's because the only available thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
+Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously! It's because the only available thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the function then it can continue on caller code.
 
 Now let's use `Promise`:
 
@@ -170,17 +170,17 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
 
 Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to complete or you don't. It can not. JavaScript with its only thread is unable to escape a blocking code.
 
-Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large dataset. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no anymore running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
+Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large dataset. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no longer running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
 Back in 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and later on it was a genius idea to run in a single-threaded environment to get ride of multi-threading bottlenecks. But JavaScript grew much beyond expectations and it stepped out of browser. Also in browser JavaScript is now beyond a simple scripting language. Maybe its simplicity and its single-threaded environment which freed up so many headaches in programming are main factors for its success, but today if the language wants to support its vast sociaty and ecosystem it has to have a solution for running blocking code and still being able to do other things. Changing principal design of the language and be a multi-threaded language has huge consequences. This is not our only option. The language can have a multi-threaded like mode which is explicitly requested by programmer. Nothing needs to be changed but introducing another syntax and feature.
 
-For example like marking a method as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this method. That way the programmer its self is responsible for every possible race condition that may happen. With this approach still the language can enjoy its atomic like behavior on changing and manipulating data. It just magically do not block its self in an ancient solved programming problem.
+For example like marking a function as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this function. That way the programmer its self is responsible for every possible race condition that may happen. With this approach, the language can still enjoy its atomic-like behavior in changing and manipulating data. It just magically do not block its self in an ancient solved programming problem.
 
 For now, let's mimic what JavaScript can have that everyone be still proud of it.
 
-First we somehow need to keep hands off flow of control so JavaScript can run any other blocked code. It is obvious it is impossible for us to implement this in synchronous context. so our only option is asynchronous context. Shifting flow of control means exiting from our running code but we have to be able to return to our code again when JavaScript was finished running postponed codes. So our best option is `Promise` if we don't want to introduce other obstacles and use callbacks. How we keep our hands off flow of control it's just a simple already expired timeout.
+First we somehow need to keep hands off flow of control so JavaScript can run any other blocked code. It is obvious it is impossible for us to implement this in synchronous context. so our only option is asynchronous context. Shifting flow of control means exiting from our running code but we have to be able to return to our code again when JavaScript has finished running postponed codes. So our best option is `Promise` if we don't want to introduce other obstacles and use callbacks. How we keep our hands off flow of control it's just a simple already expired timeout.
 
 Here is what we have:
 
@@ -246,12 +246,35 @@ This message is set to be displayed after 1 second and it did display after 1 se
   stop: true
 ```
 
-We are amazing. We did it only with one line of code. But there are two issues with our code:
+We are amazing. We did it only in one line of code. But there are two issues with our code:
 
 1. `wasteCPUCyclesInSeconds(2);` is still blocking.
-   - ...   
+   - Although we have achieved what we needed for this code to run correctly we are still blocking JavaScript doing other things not related directly to our code.
 2. We introduced possibility of race condition almost like what multi-threaded languages have.
-   - It is almost because we still have atomic actions in our critical section.
+   - It is almost because we still have atomic behavior in our critical section. It is still a single thread running our code.
+
+If we have a near to infinity loop like what we have here it is not a good idea to hands off flow of control in every iteration.
+
+So let's implement a function to do clever things for us:
+
+```js
+const redeemer = (delay, previousRedemptionTime) => new Promise((resolve) => {
+  const time           = Date.now();
+  let   redemptionTime = undefined;
+
+  if (typeof previousRedemptionTime === "number" && typeof delay === "number") {
+    redemptionTime = previousRedemptionTime + delay;
+  } else {
+    redemptionTime = time;
+  }
+
+  if (time >= redemptionTime) {
+    setTimeout(() => resolve(redemptionTime), 0);
+  } else {
+    resolve(previousRedemptionTime);
+  }
+});
+```
 
 
 
