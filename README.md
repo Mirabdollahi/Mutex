@@ -1,7 +1,7 @@
 # Mutex
 
 Being single-threaded doesn't necessarily mean we wouldn't eventually end up in some kind of race conditions. JavaScript is single-threaded but there is no race condition only for language implementers their self. They devide execution time for different sections of code and end user practically experience some kind of multi-threaded behavior.
-We some how have to address this kind of uncertainty that we couldn't be sure in every situation which part of our code is going to run next. Mutex aims to provide this necessity for JavaScript developers, especially for those who codes in Node.js which is really needed in many different situations.
+We some how have to address this kind of uncertainty that we couldn't be sure in every situation which part of our code is going to run next. Mutex aims to provide this necessity for JavaScript developers which is really needed in many different situations.
 
 ## What is Mutex?
 Mutex is a short for **Mut**ual **Ex**clusion. Freely speaking, mutual exclution is just a flag. It signals other threads do not modify or relay on data marked by the flag at current time. If a thread needs to change or have to be assured the data is not going to change simultaneously by other threads it has to acquire reponsibility for that flag or wait in a queue until the flag is available to acquire. It is important to know that mutual exclution does not prevent any unwanted change to the data. It only guides working threads to prevent conflictions with each other. However mutual exclusion can be used internally to prevent any unwanted data modification from outer scope.
@@ -170,7 +170,7 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
 
 Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to complete or you don't. It can not. JavaScript with its only thread is unable to escape a blocking code.
 
-But who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large data set. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no anymore running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
+Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large data set. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no anymore running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
