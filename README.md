@@ -246,7 +246,14 @@ This message is set to be displayed after 1 second and it did display after 1 se
   stop: true
 ```
 
-We are amazing. We did it only with one line of code. But there are two problems with our code.
+We are amazing. We did it only with one line of code. But there are two issues with our code:
+
+1. `wasteCPUCyclesInSeconds(2);` is still blocking.
+   - ...   
+2. We introduced possibility of race condition almost like what multi-threaded languages have.
+   - It is almost because we still have atomic actions in our critical section.
+
+
 
 
 Uploading soon...
