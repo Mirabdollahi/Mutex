@@ -176,7 +176,7 @@ So, what is solution? How we can survive from single tasking blackhole in 2020s?
 
 Back in 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and later on it was a genius idea to run in a single-threaded environment to get ride of multi-threading bottlenecks. But JavaScript grew much beyond expectations and it stepped out of browser. Also in browser JavaScript is now beyond a simple scripting language. Maybe its simplicity and its single-threaded environment which freed up so many headaches in programming are main factors for its success, but today if the language wants to support its vast sociaty and ecosystem it has to have a solution for running blocking code and still being able to do other things. Changing principal design of the language and be a multi-threaded language has huge consequences. This is not our only option. The language can have a multi-threaded like mode which is explicitly requested by programmer. Nothing needs to be changed but introducing another syntax and feature.
 
-For example like marking a function as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this function. That way the programmer its self is responsible for every possible race condition that may happen. With this approach, the language can still enjoy its atomic-like behavior in changing and manipulating data. It just magically do not block its self in an ancient solved programming problem.
+For example like marking a function as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this function. That way the programmer its self is responsible for every possible race condition that may happen. With this approach, the language can still enjoy its atomic-like behavior in changing and manipulating data. It just magically do not block its self while still using only a single thread.
 
 For now, let's mimic what JavaScript can have that everyone be still proud of it.
 
@@ -249,11 +249,11 @@ This message is set to be displayed after 1 second and it did display after 1 se
 We are amazing. We did it only in one line of code. But there are two issues with our code:
 
 1. `wasteCPUCyclesInSeconds(2);` is still blocking.
-   - Although we have achieved what we needed for this code to run correctly we are still blocking JavaScript doing other things not related directly to our code.
+   - Although we have achieved what we needed for this code to run correctly but we are still blocking JavaScript doing other things not related directly to our code.
 2. We introduced possibility of race condition almost like what multi-threaded languages have.
-   - It is almost because we still have atomic behavior in our critical section. It is still a single thread running our code.
+   - It is almost because we still have atomic-like behavior in our critical section. Our single thread is still running our code.
 
-If we have a near to infinity loop like what we have here it is not a good idea to hands off flow of control in every iteration.
+If we have a near to infinity loop like what we have here it might not be a good idea to hands off flow of control in every iteration.
 
 So let's implement a function to do clever things for us:
 
@@ -276,6 +276,49 @@ const redeemer = (delay, previousRedemptionTime) => new Promise((resolve) => {
 });
 ```
 
+Now let's use our `redeemer` funtion:
+
+```js
+(async () => {
+  const redeemer = (delay, previousRedemptionTime) => new Promise((resolve) => {
+    .
+    .
+    .
+  });
+
+  const wasteCPUCyclesInSeconds = async (seconds) => {
+    const startTime              = Date.now();
+    let   previousRedemptionTime = undefined;
+
+    while (true) {
+      const endTime  = Date.now();
+      const duration = Math.floor((endTime - startTime) / 1000);
+
+      if (duration >= seconds) {
+        break;
+      }
+
+      previousRedemptionTime = await redeemer(10, previousRedemptionTime);
+    }
+
+    console.log(` Finished after ${seconds} seconds.`);
+  }
+
+  .
+  .
+  .
+
+  await redeemer();
+
+  if (!stop) {
+    console.log('Wasting CPU cycles for 1 second...');
+    await wasteCPUCyclesInSeconds(1);
+  }
+
+  console.log(`  stop: ${stop}`);
+})();
+
+```
 
 
 
