@@ -180,7 +180,7 @@ For example like marking a method as asynchronous with `async` it can also be ma
 
 For now, let's mimic what JavaScript can have that everyone be still proud of it.
 
-First we somehow need to keep hands off flow of control so JavaScript can run any other blocked code. It is obvious it is impossible for us to implement this in synchronous context. so our only option is asynchronous context. Shifting flow of control means exiting from our running code but we have to be able to return to our code when JavaScript was finished running postponed codes. So our best option is `Promise` if we don't want to introduce other obstacles and use callbacks. How we keep our hands off flow of control it's just a simple already expired timeout.
+First we somehow need to keep hands off flow of control so JavaScript can run any other blocked code. It is obvious it is impossible for us to implement this in synchronous context. so our only option is asynchronous context. Shifting flow of control means exiting from our running code but we have to be able to return to our code again when JavaScript was finished running postponed codes. So our best option is `Promise` if we don't want to introduce other obstacles and use callbacks. How we keep our hands off flow of control it's just a simple already expired timeout.
 
 Here is what we have:
 
