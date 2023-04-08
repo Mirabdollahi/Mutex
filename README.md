@@ -1,6 +1,6 @@
 # Mutex
 
-Being single-threaded doesn't necessarily mean we wouldn't eventually end up in some kind of race conditions. JavaScript is single-threaded but there is no race condition only for language implementors their self. They devide execution time for different sections of code and end user practically experience some kind of multi-threaded behavior.
+Being single-threaded doesn't necessarily mean we wouldn't eventually end up in some kind of race conditions. JavaScript is single-threaded but there is no race condition only for language implementers their self. They devide execution time for different sections of code and end user practically experience some kind of multi-threaded behavior.
 We some how have to address this kind of uncertainty that we couldn't be sure in every situation which part of our code is going to run next. Mutex aims to provide this necessity for JavaScript developers, especially for those who codes in Node.js which is really needed in many different situations.
 
 ## What is Mutex?
@@ -120,7 +120,7 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
   stop: true
 ```
 
-Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously. It's because the only available thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
+Still the same. But what happened here? `wasteCPUCyclesInSeconds(2);` and `wasteCPUCyclesInSeconds(1);` were called asynchronously! It's because the only available thread have to enter asynchronous `wasteCPUCyclesInSeconds` and it is caught there until it finishes executing the method then it can continue on caller code.
 
 Now let's use `Promise`:
 
@@ -168,13 +168,16 @@ This message is set to be displayed after 1 second but it displayed after 3 seco
   stop: true
 ```
 
-Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to complete or don't. It can not. JavaScript with its only thread is unable to escape a blocking code.
+Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to complete or you don't. It can not. JavaScript with its only thread is unable to escape a blocking code.
 
-But who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we created here but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large data set. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser we are running JavaScript for a desktop or server application not just a tab in our favorite browser. It is a huge drawback for a our application if it can not run CPU intensive works without blocking.
+But who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large data set. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no anymore running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
-Back in 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and...
+Back in 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and later on it was a genius idea to run in a single-threaded environment to get ride of multi-threading bottlenecks. But JavaScript grew much beyond expectations and it stepped out of browser. Also in browser JavaScript is now beyond a simple scripting language. Maybe its simplicity and its single-threaded environment which freed up so many headaches in programming are main factors for its success, but today if the language wants to support its vast sociaty and ecosystem it has to have a solution for running blocking code and still being able to do other things. Changing principal design of the language and be a multi-threaded language has huge consequences, but the language can have a multi-threaded like mode which is explicitly requested by programmer. Nothing needs to be changed but introducing another syntax and feature.
 
+For example like marking a method as asynchronous with `async` it can also be marked as non-blocking which means every other code can be running while flow of control entered this method. That way the programmer its self is responsible for every possible race condition that may happen. This way still the language can enjoy its atomic like behavior on changing and manipulating data. It just magically do not block its self in an ancient solved programming problem.
+
+For now, let's mimic what JavaScript can have that everyone be still proud of it.
 
 Uploading soon...
