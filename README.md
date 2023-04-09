@@ -325,7 +325,7 @@ Although we have solved how to prevent blocking we have opened the door to possi
 
 Running JavaScript in a single-threaded context was a designing choice. If the language in its life span eventually had switched to multi-threaded context it couldn't probably be ever near to what it is now. But for what was mentioned earlier the language has to address how to do long time calculations while still prevent blocking.
 
-What we need here is some kind of mutual exclution. Having critical sections dictates needing mutual exclutions. It is obvious no one can expect a built-in mutual exclution when the language design does not recognize them. Although the language already had opened possibility of race conditions when it had connected its self to concurrent contexts from operating system.
+What we need here is some kind of mutual exclution. Having critical sections dictates needing mutual exclutions. It is obvious no one can expect a built-in mutual exclution when the language design does not recognize them.
 
 For now, let's continue on mutual exclution. Not having a bulit-in mutual exclusion does not mean it cannot have. Infact the language has already provided what is needed to implement an asynchronous version of mutual exclution. What we need is to be able to wait then continue when we had acquired what we were waiting for, and of cource atomic actions. The language by its design has already provided us atomic actions. Till now we were always atomic because no one is supposed to manipulate our data when we are manipulating. An when introducing `Promise` the language has provided us everything we need to implement a mutual exclution. A feature in `Promise` benefits us the most. It can be fulfilled only once. Mutex...
 
