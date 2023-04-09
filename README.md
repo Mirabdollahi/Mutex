@@ -323,7 +323,7 @@ Once again we proved our self. We are now able to search our code for blocking c
 
 Although we have solved how to prevent blocking we have opened the door to possibility of having critical sections in single-threaded context. Every time we allow blocked codes to be executed we are allowing shared data to be modified. If we were in middle of a function modifiying shared data means our current execution path inside the function may no longer fulfill where we are now. And in some cases change in critical sections requires change or changes in outer scopes.
 
-Running JavaScript in a single-threaded context was a designing choice. If the language in its life span eventually had switched to multi-threaded context it couldn't probably be ever near to what it is now. But for what was mentioned earlier the language have to address how to do long time calculations while still prevent blocking.
+Running JavaScript in a single-threaded context was a designing choice. If the language in its life span eventually had switched to multi-threaded context it couldn't probably be ever near to what it is now. But for what was mentioned earlier the language has to address how to do long time calculations while still prevent blocking.
 
 What we need here is some kind of mutual exclution. Having critical sections dictates needing mutual exclutions. It is obvious no one can expect a built-in mutual exclution when the language design does not recognize them. Although the language already had opened possibility of race conditions when it had connected its self to concurrent contexts from operating system.
 
