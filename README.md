@@ -332,8 +332,64 @@ Mutex aims to provide a mutual exclution mechanism for single-threaded JavaScrip
 So. let's use Mutex to see how we can survive from critical sections:
 
 ```js
+(async () => {
+  .
+  .
+  .
+
+  const mutex     = new Mutex();
+
+  setTimeout(async () => {
+    .
+    .
+    .
+
+    console.log('  Entering critical section 1...');
+    const releaseAsync = await mutex.AcquireAsync();
+
+    stop = true;
+
+    console.log('  Exiting critical section 1...');
+    await releaseAsync();
+
+    .
+    .
+    .
+  }, 1000);
+
+  .
+  .
+  .
+
+  console.log('  Entering critical section 2...');
+  const releaseAsync = await mutex.AcquireAsync();
+
+  const _stop = stop;
+
+  console.log('  Exiting critical section 2...');
+  await releaseAsync();
+
+  if (!_stop) {
+    console.log('Wasting CPU cycles for 1 second...');
+    await wasteCPUCyclesInSeconds(1);
+  }
+
+  console.log(`  stop: ${stop}`);
+})();
+```
+```
+Wasting CPU cycles for 2 seconds...
+  Entering critical section 1...
+  Exiting critical section 1...
+This message is set to be displayed after 1 second and it did display after 1 second!
+  stop: true
+ Finished after 2 seconds.
+  Entering critical section 2...
+  Exiting critical section 2...
+  stop: true
 ```
 
+Now, we can run our code safely.
 
 
 
