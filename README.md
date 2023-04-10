@@ -398,6 +398,13 @@ This message is set to be displayed after 1 second and it did display after 1 se
 
 Now, we can run our code safely.
 
+Although in our example it is not really needed to use mutual exclusion because clearly there is no possible collision here. So, let's construct a colliding example:
+
+```js
+
+```
+```
+```
 
 
 Uploading soon...
