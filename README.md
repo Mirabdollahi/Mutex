@@ -173,9 +173,13 @@ Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to co
 Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large dataset. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no longer running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
 Now, let's see
+
 .
+
 .
+
 .
+
 .
 
 
