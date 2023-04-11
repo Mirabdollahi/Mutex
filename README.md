@@ -172,17 +172,41 @@ Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to co
 
 Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large dataset. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no longer running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
-Now, let's see
+Now, let's see another example:
 
-.
+```js
+(async () => {
+  const wasteCPUCyclesInSeconds = async (seconds) => {
+    . . .
+  }
+  
+  const tryFetchAsync           = async (url, timeout) => {
+    // Trying to fetch data from remote url.
+  };
 
-.
+  let   fetchResult;
 
-.
+  tryFetchAsync('remote url', 1000)
+    .then((result) => {
+      // We're done. World is in the peace...
 
-.
+      fetchResult = true;
+    })
+    .catch((err) => {
+      // Something unexpected happend. Peace... We are all looking forward to it...
 
+      fetchResult = false;
+    });
 
+  await wasteCPUCyclesInSeconds(2);
+
+  if (!fetchResult) {
+    // Retrying...
+  }
+})();
+```
+
+What a strange code! Does anybody have any hope world peace is possible here? `tryFetchAsync` is called without `await`, because in our code we didn't want to wait for it but after doing some calculation we are comming back to see what is the result. When we check `fetchResult` it is `undefined`. `fetchResult` doesn't ever had opportunity to set result.
 
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
