@@ -180,15 +180,17 @@ Now, let's see another example:
     . . .
   }
   
-  const tryFetchAsync           = async (url, timeout) => {
+  const tryFetchAsync = async (url, timeout) => {
     // Trying to fetch data from remote url.
   };
 
-  let   fetchResult;
+  let   fetchResult   = undefined;
 
   tryFetchAsync('remote url', 1000)
     .then((result) => {
-      // We're done. World is in the peace...
+      // We're done. World is in peace...
+
+      // Doing some stuff in hurry
 
       fetchResult = true;
     })
@@ -206,7 +208,7 @@ Now, let's see another example:
 })();
 ```
 
-What a strange code! Does anybody have any hope world peace is possible here? `tryFetchAsync` is called without `await`, because in our code we didn't want to wait for it but after doing some calculation we are comming back to see what is the result. When we check `fetchResult` it is `undefined`. `fetchResult` doesn't ever had opportunity to set result.
+What a strange code! Does anybody have any hope world peace is possible here? `tryFetchAsync` is called without `await`, because in our code we didn't want to wait for it but after doing some calculation we are comming back to see what is the result. When we check `fetchResult` it is `undefined`. `fetchResult` doesn't ever had any chance to set result. Although if it has any chance it has to run against arrow of time to be a peace maker. After fetching data its timeout was already expired and data was invalidated!
 
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
@@ -317,9 +319,7 @@ Now let's use our `redeemer` funtion:
 ```js
 (async () => {
   const redeemer = (delay, previousRedemptionTime) => new Promise((resolve) => {
-    .
-    .
-    .
+    . . .
   });
 
   const wasteCPUCyclesInSeconds = async (seconds) => {
@@ -362,7 +362,7 @@ This message is set to be displayed after 1 second and it did display after 1 se
   stop: true
 ```
 
-Once again we proved our self. We are now able to search our codes for blocking code and place a `redeemer` to keeps hands off flow of control every 10 milliseconds. But without any further action we are on the verge of destroying our reputation.
+Once again we proved our self. We are now able to search our programs for blocking code and place a `redeemer` to keeps hands off flow of control every 10 milliseconds. But without any further action we are on the verge of destroying our reputation.
 
 Although we have solved how to prevent blocking we have opened the door to possibility of having critical sections in single-threaded context. Every time we allow blocked codes to be executed we are allowing shared data to be modified. If we were in middle of a function modifiying shared data means our current execution path inside the function may no longer fulfill where we are now. And in some cases change in critical sections requires change or changes in outer scopes.
 
@@ -431,10 +431,68 @@ This message is set to be displayed after 1 second and it did display after 1 se
   Exiting critical section 2...
   stop: true
 ```
+Now, we can run our code safely. Although in this example it is not really needed to use mutual exclusion, because there is no possible collision here.
 
-Now, we can run our code safely.
+Let's retry to make a world peace as soon as possible:
 
-Although in our example it is not really needed to use mutual exclusion, because clearly there is no possible collision here. So, let's construct a colliding example:
+```js
+(async () => {
+  const mutex = new Mutex();
+
+  let   fetchResult;
+
+  const doingStuffWhileWaitingForWorldPeace = async () => {
+    let previousRedemptionTime;
+    
+    while (true) {
+      // Doing stuff
+
+      const releaseAsync = await mutex.AcquireAsync();
+
+      cosnt _fetchResult = fetchResult;
+
+      await releaseAsync();
+
+      if (typeof _fetchResult !== "undefined") {
+        return fetchResult;
+      }
+
+      previousRedemptionTime = await redeemer(10, previousRedemptionTime);
+    }
+  }
+
+  const tryFetchAsync = async (url, timeout) => {
+    // Trying to fetch data from remote url.
+  };
+
+  tryFetchAsync('remote url', 1000)
+    .then((result) => {
+      // We're done. World is in peace...
+
+      const releaseAsync = await mutex.AcquireAsync();
+
+      // Doing some stuff in hurry
+      
+      fetchResult = true;
+
+      await releaseAsync();
+    })
+    .catch((err) => {
+      // Something unexpected has happend. Peace... We are all looking forward to it...
+
+      fetchResult = false;
+    });
+
+  fetchResult = await doingStuffWhileWaitingForWorldPeace();
+
+  if (!fetchResult) {
+    // Retrying...
+  }
+})();
+```
+
+
+
 
 ```js
 
