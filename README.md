@@ -1,6 +1,6 @@
 # Mutex
 
-Being single-threaded doesn't necessarily mean we wouldn't eventually end up in some kind of race conditions. JavaScript is single-threaded but there is no race condition only for language implementers their self. They devide execution time for different sections of code and end user practically experience some kind of multi-tasking behavior.
+Being single-threaded doesn't necessarily mean we wouldn't eventually end up in some kind of race conditions. JavaScript is single-threaded but there is no race condition only for language implementers them self. They devide execution time for different sections of code and end user practically experience some kind of multi-tasking behavior.
 We some how have to address this kind of uncertainty that we couldn't be sure in every situation which part of our code is going to run next. Mutex aims to provide this necessity for JavaScript developers which is really needed in many different situations.
 
 ## What is Mutex?
