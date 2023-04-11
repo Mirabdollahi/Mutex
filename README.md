@@ -172,44 +172,6 @@ Nothing changed. It does not matter you wait for `wasteCPUCyclesInSeconds` to co
 
 Who in the world is using a blocking code in JavaScript? Maybe it is rare that someone wants something like what we have created here, but it is actually occuring more than often in our codes. Every time we are running a long running calculation of data we are blocking. For example processing a large dataset. When we are blocking, JavaScript is completely blinded about what is happening elsewhere. And in case of Node.js or other frameworks and environments outside browser, we are no longer running JavaScript in a tab in our favorite browser. It is a huge drawback for many type of applications if it can not run CPU intensive works without blocking.
 
-Now, let's see another example:
-
-```js
-(async () => {
-  const wasteCPUCyclesInSeconds = async (seconds) => {
-    . . .
-  }
-  
-  const tryFetchAsync = async (url, timeout) => {
-    // Trying to fetch data from remote url.
-  };
-
-  let   fetchResult   = undefined;
-
-  tryFetchAsync('remote url', 1000)
-    .then((result) => {
-      // We're done. World is in peace...
-
-      // Doing some stuff in hurry
-
-      fetchResult = true;
-    })
-    .catch((err) => {
-      // Something unexpected happend. Peace... We are all looking forward to it...
-
-      fetchResult = false;
-    });
-
-  await wasteCPUCyclesInSeconds(2);
-
-  if (!fetchResult) {
-    // Retrying...
-  }
-})();
-```
-
-What a strange code! Does anybody have any hope world peace is possible here? `tryFetchAsync` is called without `await`, because in our code we didn't want to wait for it but after doing some calculation we are comming back to see what is the result. When we check `fetchResult` it is `undefined`. `fetchResult` doesn't ever had any chance to set result. Although if it has any chance it has to run against arrow of time to be a peace maker. After fetching data its timeout was already expired and data was invalidated!
-
 So, what is solution? How we can survive from single tasking blackhole in 2020s? What we have is a single thread running our code and it is not directly in our hands too. Perfect solution is not possible for us. The language designers and its implementers have to reconsider what is best for JavaScript and its huge and growing ecosystem.
 
 Back in 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and later on it was a genius idea to run in a single-threaded environment to get ride of multi-threading bottlenecks. But JavaScript grew much beyond expectations and it stepped out of browser. Also in browser JavaScript is now beyond a simple scripting language. Maybe its simplicity and its single-threaded environment which freed up so many headaches in programming are main factors for its success, but today if the language wants to support its vast sociaty and ecosystem it has to have a solution for running blocking code and still being able to do other things. Changing principal design of the language and be a multi-threaded language has huge consequences. This is not our only option. The language can have a multi-threaded like mode which is explicitly requested by programmer. Nothing needs to be changed but introducing another syntax and feature.
@@ -368,128 +330,16 @@ Although we have solved how to prevent blocking we have opened the door to possi
 
 Running JavaScript in a single-threaded context was a designing choice. If the language in its life span eventually had switched to multi-threaded context it couldn't probably be ever near to what it is today. But for what was mentioned earlier the language has to address how to do long time calculations while still prevent blocking.
 
-What we need here is some kind of mutual exclution. Having critical sections dictates needing mutual exclutions. It is obvious no one can expect a built-in mutual exclution when the language design does not recognize them. Not having a bulit-in mutual exclusion does not mean it cannot have. Infact the language has already provided what is needed to implement an asynchronous version of mutual exclution. What we need is to be able to wait then continue when we had acquired what we were waiting for, and of cource atomic actions. The language by its design has already provided us atomic actions. Till now we were always atomic because no one is supposed to manipulate our data when we are manipulating. And when introducing `Promise` the language has provided us everything we need to implement a mutual exclution.
+Critical sections aren't a new phenomenon in JavaScript. In fact, the language has already opened the door to possibility of having critical sections when connecting its self to outside concurrent world. Cocurrent outside input/output needs callbacks, and callbacks are asynchronous. Doing asynchronous requires being waited for some actions to be fulfilled while JavaScript is executing other codes then continue. This means possibility of modifying shared data that is equivalent to possibility of having critical sections. But this type of critical sections is not as problematic as having a `redemmer` function in our blocking codes.
+
+Having critical sections dictates needing mutual exclutions. It is obvious no one can expect a built-in mutual exclution when the language design does not recognize them. Not having a bulit-in mutual exclusion does not mean it cannot have. Infact the language has already provided what is needed to implement an asynchronous version of mutual exclution. What we need is to be able to wait then continue when we had acquired what we were waiting for, and of cource atomic actions. The language by its design has already provided us atomic actions. Till now we were always atomic because no one is supposed to manipulate our data when we are manipulating. And when introducing `Promise` the language has provided us everything we need to implement a mutual exclution.
 
 Mutex aims to provide a mutual exclution mechanism for single-threaded JavaScript context. It has plenty of options for JavaScript developers to be able to avoid race conditions.
 
-So. let's use Mutex to see how we can survive from critical sections:
+In the example above, it is not really needed to have mutual exclution. So, let's construct another example:
 
-```js
-(async () => {
-  .
-  .
-  .
 
-  const mutex     = new Mutex();
 
-  setTimeout(async () => {
-    .
-    .
-    .
-
-    console.log('  Entering critical section 1...');
-    const releaseAsync = await mutex.AcquireAsync();
-
-    stop = true;
-
-    console.log('  Exiting critical section 1...');
-    await releaseAsync();
-
-    .
-    .
-    .
-  }, 1000);
-
-  .
-  .
-  .
-
-  console.log('  Entering critical section 2...');
-  const releaseAsync = await mutex.AcquireAsync();
-
-  const _stop = stop;
-
-  console.log('  Exiting critical section 2...');
-  await releaseAsync();
-
-  if (!_stop) {
-    console.log('Wasting CPU cycles for 1 second...');
-    await wasteCPUCyclesInSeconds(1);
-  }
-
-  console.log(`  stop: ${stop}`);
-})();
-```
-```
-Wasting CPU cycles for 2 seconds...
-  Entering critical section 1...
-  Exiting critical section 1...
-This message is set to be displayed after 1 second and it did display after 1 second!
-  stop: true
- Finished after 2 seconds.
-  Entering critical section 2...
-  Exiting critical section 2...
-  stop: true
-```
-Now, we can run our code safely. Although in this example it is not really needed to use mutual exclusion, because there is no possible collision here.
-
-Let's retry to make a world peace as soon as possible:
-
-```js
-(async () => {
-  const mutex = new Mutex();
-
-  let   fetchResult;
-
-  const doingStuffWhileWaitingForWorldPeace = async () => {
-    let previousRedemptionTime;
-    
-    while (true) {
-      // Doing stuff
-
-      const releaseAsync = await mutex.AcquireAsync();
-
-      cosnt _fetchResult = fetchResult;
-
-      await releaseAsync();
-
-      if (typeof _fetchResult !== "undefined") {
-        return fetchResult;
-      }
-
-      previousRedemptionTime = await redeemer(10, previousRedemptionTime);
-    }
-  }
-
-  const tryFetchAsync = async (url, timeout) => {
-    // Trying to fetch data from remote url.
-  };
-
-  tryFetchAsync('remote url', 1000)
-    .then((result) => {
-      // We're done. World is in peace...
-
-      const releaseAsync = await mutex.AcquireAsync();
-
-      // Doing some stuff in hurry
-      
-      fetchResult = true;
-
-      await releaseAsync();
-    })
-    .catch((err) => {
-      // Something unexpected has happend. Peace... We are all looking forward to it...
-
-      fetchResult = false;
-    });
-
-  fetchResult = await doingStuffWhileWaitingForWorldPeace();
-
-  if (!fetchResult) {
-    // Retrying...
-  }
-})();
-```
 
 
 
