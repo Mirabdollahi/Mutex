@@ -175,7 +175,7 @@ So, what is the solution? How we can survive from single-tasking black hole in t
 
 Back in the 1990s when designing JavaScript it was enough for a scripting language running in an ancient browser to run in a single thread and later on it was a genius idea to run in a single-threaded environment to get rid of multi-threading bottlenecks. But JavaScript grew much beyond expectations, and it stepped out of the browser. Also in browser JavaScript is now beyond a simple scripting language. Maybe its simplicity and its single-threaded environment which freed up so many headaches in programming are main factors for its success, but today if the language wants to support its vast society and ecosystem it has to have a solution for running blocking code and still being able to do other things. Changing principal design of the language and be a multi-threaded language has huge consequences. This is not our only option. The language can have a multi-threaded like mode which is explicitly requested by programmer. Nothing needs to be changed but introducing another syntax and feature.
 
-For example, like marking a function as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this function. That way, the programmer its self is responsible for every possible race condition that may happen. With this approach, the language can still enjoy its atomic-like behavior in changing and manipulating data. It just magically do not block itself while still using only a single thread.
+For example, like marking a function as asynchronous with `async` it can also be marked as non-blocking which means every other code can be executed while flow of control entered this function. That way, the programmer itself is responsible for every possible race condition that may happen. With this approach, the language can still enjoy its atomic-like behavior in changing and manipulating data. It just magically do not block itself while still using only a single thread.
 
 For now, let's mimic what JavaScript can have that everyone be still proud of it.
 
@@ -248,7 +248,7 @@ This message is set to be displayed after 1 second and it did display after 1 se
 We are amazing. We did it only in one line of code. But there are two issues with our code:
 
 1. `wasteCPUCyclesInSeconds(2);` is still blocking.
-   - Although we have achieved what we needed for this code to run correctly, but we are still blocking JavaScript doing other things not related directly to our code.
+   - Although we have achieved what we needed for this code to run correctly, we are still blocking JavaScript doing other things not related directly to our code.
 2. We introduced possibility of race condition almost like what multi-threaded languages have.
    - It is almost because we still have atomic-like behavior in our critical section. We are still having a single thread running our code.
 
