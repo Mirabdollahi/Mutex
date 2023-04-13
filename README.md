@@ -250,7 +250,7 @@ We are amazing. We did it only in one line of code. But there are two issues wit
 1. `wasteCPUCyclesInSeconds(2);` is still blocking.
    - Although we have achieved what we needed for this code to run correctly, we are still blocking JavaScript doing other things not related directly to our code.
 2. We introduced possibility of race condition almost like what multi-threaded languages have.
-   - It is almost because we still have atomic-like behavior in our critical section. We are still having a single thread running our code.
+   - It is almost because we still have atomic-like behavior in our critical sections. We are still having a single thread running our code.
 
 If we have a near to infinity loop like what we have here, it might not be a good idea to hands-off flow of control in every iteration.
 
@@ -329,7 +329,7 @@ Although we have solved how to prevent blocking, we have opened the door to the 
 
 Running JavaScript in a single-threaded context was a designing choice. If the language in its life span eventually had switched to multi-threaded context, it couldn't probably be ever near to what it is today. But for what was mentioned earlier, the language has to address how to do long time calculations while still prevent blocking.
 
-Critical sections aren't a new phenomenon in JavaScript. In fact, the language has already opened the door to the possibility of having critical sections when connecting its self to outside concurrent world. Concurrent outside input/output needs callbacks, and callbacks are asynchronous. Doing asynchronous requires being waited for some actions to be fulfilled while executing other codes, then continue. This means possibility of modifying shared data that is equivalent to possibility of having critical sections. But this type of critical sections is not as problematic as having a `redemmer` function in our blocking codes.
+Critical sections aren't a new phenomenon in JavaScript. In fact, the language has already opened the door to the possibility of having critical sections when connecting itself to outside concurrent world. Concurrent outside input/output needs callbacks, and callbacks are asynchronous. Doing asynchronous requires being waited for some actions to be fulfilled while executing other codes, then continue. This means possibility of modifying shared data that is equivalent to possibility of having critical sections. But this type of critical sections is not as problematic as having a `redemmer` function in our blocking codes.
 
 Having critical sections dictates needing mutual exclusions. It is obvious, no one can expect a built-in mutual exclusion when the language design does not recognize them. Not having a built-in mutual exclusion does not mean it cannot have. In fact, the language has already provided what is needed to implement an asynchronous version of mutual exclusion. What we need is to be able to wait then continue when we had acquired what we were waiting for, and of course atomic actions. The language by its design has already provided us atomic actions. Till now, we were always atomic because no one is supposed to manipulate our data when we are manipulating. And when introducing `Promise` the language has provided us everything we need to implement a mutual exclusion.
 
@@ -339,6 +339,6 @@ In the example above, it is not really needed to have mutual exclusion. So, let'
 
 **Currently, I'm working on a 3D engine using vanilla JavaScript and Mutex as a working example for Mutex.**
 
-**I'm curious if anybody watching this article. Please let me know by email if you are interested and want to know more about the project.**
+**I'm curious if anybody is watching this article. Please let me know by email if you are interested and want to know more about the project.**
 
 Uploading soon...
