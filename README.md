@@ -335,14 +335,12 @@ Having critical sections dictates needing mutual exclusions. It is obvious, no o
 
 Mutex aims to provide a mutual exclusion mechanism for single-threaded JavaScript context. It has plenty of options for JavaScript developers to be able to avoid race conditions.
 
-
-
 In the example above, it is not really needed to have mutual exclusion. So, let's construct another example:
 
+.
 Currently, I'm working on a 3D engine using vanilla JavaScript and Mutex as a working example for Mutex.
 
 I'm curious if anybody watching this article. Please let me know by email if you are interested and want to know more about the project.
-
-
+.
 
 Uploading soon...
