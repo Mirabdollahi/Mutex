@@ -342,3 +342,8 @@ In the example above, it is not really needed to have mutual exclusion. So, let'
 **I'm curious if anybody is watching this article. Please let me know by email if you are interested and want to know more about the project.**
 
 Uploading soon...
+
+Updated on 27 Jul 2023
+I know it took longer than I expected, I had to spend some time on studying how to implement a Font Rasterizer for 3D Engine and some other stuff. Those projects are also worthy to take a look.
+I am currently ready to start coding.
+
